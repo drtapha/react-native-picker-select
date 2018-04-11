@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import {
   Modal,
   Picker,
+  DatePickerIOS,
   Platform,
   StyleSheet,
   Text,
@@ -141,7 +142,7 @@ export default class RNPickerSelect extends PureComponent {
     if (this.props.children) {
       return (
         <View pointerEvents="box-only">
-          { this.props.children }
+          {this.props.children}
         </View>
       );
     }
@@ -152,9 +153,33 @@ export default class RNPickerSelect extends PureComponent {
           value={this.state.selectedItem.label}
           ref={(ref) => { this.inputRef = ref; }}
         />
-        { this.renderIcon() }
+        {this.renderIcon()}
       </View>
     );
+  }
+
+  renderPickerType() {
+    const { type } = this.props;
+    if (type == 'date') {
+      return (
+        <DatePickerIOS
+          date={this.props.value}
+          onDateChange={this.props.onValueChange}
+          locale={this.props.dateLocale}
+          mode={this.props.dateMode}
+        />
+      )
+    }
+
+    return (
+      <Picker
+        onValueChange={this.onValueChange}
+        selectedValue={this.state.selectedItem.value}
+        testId="RNPickerSelectIOS"
+      >
+        {this.renderPickerItems()}
+      </Picker>
+    )
   }
 
   renderIOS() {
@@ -163,7 +188,7 @@ export default class RNPickerSelect extends PureComponent {
         <TouchableWithoutFeedback
           onPress={() => { this.togglePicker(true); }}
         >
-          { this.renderTextInputOrChildren() }
+          {this.renderTextInputOrChildren()}
         </TouchableWithoutFeedback>
         <Modal
           visible={this.state.showPicker}
@@ -174,15 +199,9 @@ export default class RNPickerSelect extends PureComponent {
             style={[styles.modalViewTop, this.props.style.modalViewTop]}
             onPress={() => { this.togglePicker(true); }}
           />
-          { this.renderDoneBar() }
+          {this.renderDoneBar()}
           <View style={[styles.modalViewBottom, this.props.style.modalViewBottom]}>
-            <Picker
-              onValueChange={this.onValueChange}
-              selectedValue={this.state.selectedItem.value}
-              testId="RNPickerSelectIOS"
-            >
-              { this.renderPickerItems() }
-            </Picker>
+            {this.renderPickerType()}
           </View>
         </Modal>
       </View>
@@ -192,7 +211,7 @@ export default class RNPickerSelect extends PureComponent {
   renderAndroidHeadless() {
     return (
       <View style={{ borderWidth: 0 }}>
-        { this.props.children }
+        {this.props.children}
         <Picker
           style={{ position: 'absolute', top: 0, width: 1000, height: 1000 }}
           onValueChange={this.onValueChange}
@@ -201,7 +220,7 @@ export default class RNPickerSelect extends PureComponent {
           mode={this.props.mode}
           enabled={!this.props.disabled}
         >
-          { this.renderPickerItems() }
+          {this.renderPickerItems()}
         </Picker>
       </View>
     );
@@ -222,7 +241,7 @@ export default class RNPickerSelect extends PureComponent {
           mode={this.props.mode}
           enabled={!this.props.disabled}
         >
-          { this.renderPickerItems() }
+          {this.renderPickerItems()}
         </Picker>
         <View style={[styles.underline, this.props.style.underline]} />
       </View>
@@ -245,6 +264,7 @@ RNPickerSelect.propTypes = {
     label: PropTypes.string,
     value: PropTypes.any,
   }),
+  type: PropTypes.oneOf(['select', 'date']),
   hideDoneBar: PropTypes.bool,
   hideIcon: PropTypes.bool,
   disabled: PropTypes.bool,
