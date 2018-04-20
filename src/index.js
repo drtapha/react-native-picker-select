@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import {
+  DatePickerAndroid,
   Modal,
   Picker,
   DatePickerIOS,
@@ -68,6 +69,13 @@ export default class RNPickerSelect extends PureComponent {
 
   onValueChange(value, index) {
     this.props.onValueChange(value, index);
+
+    if(Platform.OS == 'android'){
+      if(this.props.onDone && typeof this.props.onDone == 'function'){
+        this.props.onDone(value);
+      }
+    }
+
 
     this.setState({
       selectedItem: this.state.items[index],
@@ -226,7 +234,43 @@ export default class RNPickerSelect extends PureComponent {
     );
   }
 
+   openAndroidDatePicker = async () => {
+    try {
+      const { action, year, month, day } = await DatePickerAndroid.open({
+        // Use `new Date()` for current date.
+        // May 25 2020. Month 0 is January.
+        date: this.props.value
+      });
+      if (action !== DatePickerAndroid.dismissedAction) {
+        const date = new Date(year, month, day).toISOString();
+        this.props.onValueChange(date)
+
+        if(this.props.onDone && typeof this.props.onDone == 'function'){
+          this.props.onDone();
+        }
+        // Selected year, month (0-11), day
+      }
+    } catch ({ code, message }) {
+      console.warn('Cannot open date picker', message);
+    }
+  }
+
+  renderAndroidDatePicker() {
+    return (
+      <TouchableWithoutFeedback onPress={this.openAndroidDatePicker} >
+        <View style={{ borderWidth: 0 }}>
+          {this.props.children}
+        </View>
+      </TouchableWithoutFeedback>
+    )
+  }
+
   renderAndroid() {
+
+    if (this.props.type == 'date') {
+      return this.renderAndroidDatePicker();
+    }
+
     if (this.props.children) {
       return this.renderAndroidHeadless();
     }
