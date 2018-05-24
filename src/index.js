@@ -105,6 +105,12 @@ export default class RNPickerSelect extends PureComponent {
     }
     return styleModifiers;
   }
+  
+   handleDone(value){
+    if(this.props.onDone && typeof this.props.onDone == 'function'){
+      this.props.onDone(value);
+    }
+  }
 
   renderDoneBar() {
     if (this.props.hideDoneBar) { return null; }
@@ -127,7 +133,7 @@ export default class RNPickerSelect extends PureComponent {
           </TouchableOpacity>
         </View>
         <TouchableWithoutFeedback
-          onPress={() => { this.togglePicker(true); }}
+          onPress={() => { this.togglePicker(true); this.handleDone(this.props.value) }}
           hitSlop={{ top: 2, right: 2, bottom: 2, left: 2 }}
         >
           <View>
